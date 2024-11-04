@@ -1,11 +1,10 @@
 ﻿services:
   api:
-    image: apiaspnet
     ports:
       - 8080:80
     build:
       context: .
-      dockerfile: ApiASPNET.Api/Dockerfile
+      dockerfile: LinkyAppBackend.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
