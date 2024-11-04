@@ -1,7 +1,11 @@
+using LinkyAppBackend.Api.Models.Enums;
+
 namespace LinkyAppBackend.Api.Models.Entities.Interfaces;
 
-public interface IEntity
+public interface IAuditableEntity
 {
-    string Id { get; set; }
+    EntityStatus EntityStatus { get; set; }
     DateTime CreatedAt { get; set; }
+    DateTime ModifiedAt { get; set; }
+    DateTime? DeletedAt { get; set; }
 }
