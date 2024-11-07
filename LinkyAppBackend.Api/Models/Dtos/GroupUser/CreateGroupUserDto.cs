@@ -5,7 +5,8 @@ namespace LinkyAppBackend.Api.Models.Dtos.GroupUser;
 
 public class CreateGroupUserDto
 {
-    [EmailAddress]
-    public string Email { get; set; } = null!;
+    [Required]
+    [MaxLength(255)]
+    public string UserName { get; set; } = null!;
     public GroupRole Role { get; set; }
 }
