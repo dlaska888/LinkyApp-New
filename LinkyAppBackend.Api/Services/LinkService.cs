@@ -17,28 +17,30 @@ public class LinkService(
     AppDbContext dbContext,
     IPagingHelper pagingHelper,
     IMapper mapper,
-    IAuthContextProvider auth)
+    IAuthContextProvider auth,
+    IGroupUserService groupUserService)
     : ILinkService
 {
     public async Task<GetLinkDto> GetById(string groupId, string id)
     {
-        var link = await FindLinkWithAccess(groupId, id);
+        var link = await FindLinkAndVerifyAccess(groupId, id);
         return mapper.Map<GetLinkDto>(link);
     }
 
     public async Task<PagedResults<GetLinkDto>> GetAll(string groupId, SieveModel query)
     {
-        await FindGroupWithAccess(groupId);
+        await groupUserService.VerifyGroupAccess(groupId);
         var linksQuery = dbContext.Links
             .Where(l => l.GroupId == groupId)
-            .AsQueryable();
+            .AsNoTracking();
 
         return await pagingHelper.ToPagedResults<Link, GetLinkDto>(linksQuery, query);
     }
 
     public async Task<GetLinkDto> Create(string groupId, CreateLinkDto dto)
     {
-        await FindGroupWithAccess(groupId, GroupRole.Editor);
+        await groupUserService.VerifyGroupAccess(groupId, GroupRole.Editor);
+
         var newLink = mapper.Map<Link>(dto);
         newLink.GroupId = groupId;
 
@@ -50,7 +52,7 @@ public class LinkService(
 
     public async Task<GetLinkDto> Update(string groupId, string id, UpdateLinkDto dto)
     {
-        var link = await FindLinkWithAccess(groupId, id, GroupRole.ContentManager);
+        var link = await FindLinkAndVerifyAccess(groupId, id, GroupRole.ContentManager);
 
         mapper.Map(dto, link);
 
@@ -62,7 +64,7 @@ public class LinkService(
 
     public async Task<bool> Delete(string groupId, string id)
     {
-        var link = await FindLinkWithAccess(groupId, id, GroupRole.ContentManager);
+        var link = await FindLinkAndVerifyAccess(groupId, id, GroupRole.ContentManager);
 
         dbContext.Links.Remove(link);
         await dbContext.SaveChangesAsync();
@@ -70,45 +72,22 @@ public class LinkService(
         return true;
     }
 
-    private async Task<Link> FindLinkWithAccess(string groupId, string id, GroupRole role = GroupRole.Viewer)
+    private async Task<Link> FindLinkAndVerifyAccess(string groupId, string id, GroupRole role = GroupRole.Viewer)
     {
-        var link = await dbContext.Links
-            .Include(l => l.Group)
-            .ThenInclude(g => g.Users)
-            .FirstOrDefaultAsync(l => l.GroupId == groupId && l.Id == id);
+        var link = await dbContext.Links.FirstOrDefaultAsync(l => l.GroupId == groupId && l.Id == id);
 
         if (link == null)
-            throw new NotFoundException("Link not found.");
-        
+            throw new NotFoundException("Link not found");
+
         VerifyLinkAccess(link, role);
 
         return link;
     }
 
-    private async Task<LinkGroup> FindGroupWithAccess(string groupId, GroupRole role = GroupRole.Viewer)
-    {
-        var group = await dbContext.LinkGroups
-            .FirstOrDefaultAsync(x => x.Id == groupId);
-
-        if (group is null)
-            throw new NotFoundException("Group not found");
-        
-        VerifyGroupAccess(group, role);
-
-        return group;
-    }
-
     private void VerifyLinkAccess(Link link, GroupRole role = GroupRole.Viewer)
     {
         var userId = auth.GetUserId();
-        if (link.CreatorId != userId && !link.Group.Users.Any(u => u.UserId == userId && u.Role >= role))
-            throw new ForbiddenException("Your role in this group does not allow this action.");
-    }
-    
-    private void VerifyGroupAccess(LinkGroup group, GroupRole role = GroupRole.Viewer)
-    {
-        var userId = auth.GetUserId();
-        if (!group.Users.Any(u => u.UserId == userId && u.Role >= role))
-            throw new ForbiddenException("Your role in this group does not allow this action.");
+        if (link.CreatorId == userId) return;
+        groupUserService.VerifyGroupAccess(link.GroupId, role);
     }
 }

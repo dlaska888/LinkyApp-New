@@ -25,7 +25,7 @@ public class GroupService(
 {
     public async Task<GetGroupDto> GetById(string id)
     {
-        var group = await FindGroupWithAccess(id);
+        var group = await FindGroupAndVerifyAccess(id);
         return mapper.Map<GetGroupDto>(group);
     }
 
@@ -34,7 +34,7 @@ public class GroupService(
         var userId = auth.GetUserId();
         var groupsQuery = dbContext.LinkGroups
             .Where(g => g.Users.Any(u => u.UserId == userId))
-            .AsQueryable();
+            .AsNoTracking();
 
         return await pagingHelper.ToPagedResults<LinkGroup, GetGroupDto>(groupsQuery, query);
     }
@@ -42,7 +42,7 @@ public class GroupService(
     public async Task<GetGroupDto> Create(CreateGroupDto dto)
     {
         var user = await userManager.FindByIdAsync(auth.GetUserId());
-        
+
         var newGroup = mapper.Map<LinkGroup>(dto);
         newGroup.Users.Add(new LinkGroupUser
         {
@@ -58,7 +58,7 @@ public class GroupService(
 
     public async Task<GetGroupDto> Update(string id, UpdateGroupDto dto)
     {
-        var group = await FindGroupWithAccess(id, GroupRole.Owner);
+        var group = await FindGroupAndVerifyAccess(id, GroupRole.Owner);
 
         mapper.Map(dto, group);
 
@@ -70,7 +70,7 @@ public class GroupService(
 
     public async Task<bool> Delete(string id)
     {
-        var group = await FindGroupWithAccess(id, GroupRole.Owner);
+        var group = await FindGroupAndVerifyAccess(id, GroupRole.Owner);
 
         dbContext.LinkGroups.Remove(group);
         await dbContext.SaveChangesAsync();
@@ -78,14 +78,14 @@ public class GroupService(
         return true;
     }
 
-    private async Task<LinkGroup> FindGroupWithAccess(string groupId, GroupRole role = GroupRole.Viewer)
+    private async Task<LinkGroup> FindGroupAndVerifyAccess(string groupId, GroupRole role = GroupRole.Viewer)
     {
         var group = await dbContext.LinkGroups
             .Include(g => g.Users)
             .FirstOrDefaultAsync(g => g.Id == groupId);
 
         if (group == null)
-            throw new NotFoundException("Group not found.");
+            throw new NotFoundException("Group not found");
 
         VerifyGroupAccess(group, role);
 
@@ -96,6 +96,6 @@ public class GroupService(
     {
         var userId = auth.GetUserId();
         if (!group.Users.Any(u => u.UserId == userId && u.Role >= role))
-            throw new ForbiddenException("Your role in this group does not allow this action.");
+            throw new ForbiddenException("Your role in this group does not allow this action");
     }
 }

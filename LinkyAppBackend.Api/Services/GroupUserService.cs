@@ -24,6 +24,8 @@ public class GroupUserService(
 {
     public async Task<GetGroupUserDto> GetById(string groupId, string userId)
     {
+        await VerifyGroupAccess(groupId);
+
         var userGroup = await dbContext.LinkGroupUsers
             .Include(x => x.User)
             .Include(x => x.Group)
@@ -31,8 +33,6 @@ public class GroupUserService(
 
         if (userGroup == null)
             throw new NotFoundException("User group not found");
-
-        await VerifyGroupAccess(userGroup.GroupId);
 
         return mapper.Map<GetGroupUserDto>(userGroup);
     }
@@ -44,7 +44,8 @@ public class GroupUserService(
         var groupUsers = dbContext.LinkGroupUsers
             .Include(x => x.User)
             .Include(x => x.Group)
-            .Where(x => x.GroupId == groupId);
+            .Where(x => x.GroupId == groupId)
+            .AsNoTracking();
 
         return await pagingHelper.ToPagedResults<LinkGroupUser, GetGroupUserDto>(groupUsers, query);
     }
@@ -52,7 +53,13 @@ public class GroupUserService(
     public async Task<GetGroupUserDto> Create(string groupId, CreateGroupUserDto dto)
     {
         var group = await FindGroup(groupId);
-        await VerifyGroupAccess(groupId, dto.Role);
+
+        if (dto.Role == GroupRole.Viewer)
+            await VerifyGroupAccess(groupId, dto.Role);
+        else if (dto.Role == GroupRole.Owner)
+            throw new BadRequestException("You cannot add owner to the group");
+        else
+            await VerifyGroupAccess(groupId, dto.Role + 1);
 
         var user = await userManager.FindByNameAsync(dto.UserName) ??
                    await userManager.FindByEmailAsync(dto.UserName);
@@ -63,20 +70,17 @@ public class GroupUserService(
         if (group.Users.Any(x => x.UserId == user.Id))
             throw new BadRequestException("User already in group");
 
-        if (dto.Role == GroupRole.Owner)
-            throw new BadRequestException("You cannot add owner to the group");
-
-        var userGroup = new LinkGroupUser
+        var groupUser = new LinkGroupUser
         {
             UserId = user.Id,
             GroupId = group.Id,
             Role = dto.Role
         };
 
-        dbContext.LinkGroupUsers.Add(userGroup);
+        dbContext.LinkGroupUsers.Add(groupUser);
         await dbContext.SaveChangesAsync();
 
-        return mapper.Map<GetGroupUserDto>(userGroup);
+        return mapper.Map<GetGroupUserDto>(groupUser);
     }
 
     public async Task<GetGroupUserDto> Update(string groupId, string userId, UpdateGroupUserDto dto)
@@ -96,8 +100,8 @@ public class GroupUserService(
         if (otherGroupUser.Role == GroupRole.Owner || dto.Role == GroupRole.Owner)
             throw new BadRequestException("You cannot change owner role");
 
-        if (authGroupUser.Role < otherGroupUser.Role || authGroupUser.Role < dto.Role)
-            throw new ForbiddenException("You are not authorized to perform this action");
+        if (authGroupUser.Role <= otherGroupUser.Role || authGroupUser.Role <= dto.Role)
+            throw new ForbiddenException("You are not authorized to change this user's role");
 
         mapper.Map(dto, otherGroupUser);
         await dbContext.SaveChangesAsync();
@@ -119,8 +123,8 @@ public class GroupUserService(
         if (otherGroupUser.Role == GroupRole.Owner)
             throw new BadRequestException("You cannot remove owner from the group");
 
-        if (authGroupUser.Role < otherGroupUser.Role)
-            throw new ForbiddenException("You are not authorized to perform this action");
+        if (authGroupUser != otherGroupUser && authGroupUser.Role <= otherGroupUser.Role)
+            throw new ForbiddenException("You are not authorized to remove this user from the group");
 
         dbContext.LinkGroupUsers.Remove(otherGroupUser);
 
@@ -137,8 +141,6 @@ public class GroupUserService(
             throw new ForbiddenException("You are not authorized to perform this action");
     }
 
-    #region Private Methods
-
     private async Task<LinkGroup> FindGroup(string groupId)
     {
         var group = await dbContext.LinkGroups
@@ -151,6 +153,4 @@ public class GroupUserService(
 
         return group;
     }
-
-    #endregion
 }
