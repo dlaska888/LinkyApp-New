@@ -1,7 +1,11 @@
+using LinkyAppBackend.Api.Models.Dtos;
+
 namespace LinkyAppBackend.Api.Services.Interfaces;
 
-public class IAccountService
+public interface IAccountService
 {
-    // update username
-    // update password
+    Task<GetDto> GetAsync(string id);
+    Task UpdateEmailAsync(string id, string email);
+    Task UpdatePasswordAsync(string id, string password);
+    Task UploadProfilePictureAsync(string id, IFormFile file);
 }
