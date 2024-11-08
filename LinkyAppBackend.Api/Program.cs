@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +23,8 @@ using LinkyAppBackend.Api.Services;
 using LinkyAppBackend.Api.Services.Interfaces;
 using LinkyAppBackend.Api.Sieve;
 using Sieve.Services;
+using TaggyAppBackend.Api.Repos;
+using TaggyAppBackend.Api.Repos.Interfaces;
 using GoogleOptions = LinkyAppBackend.Api.Models.Options.SocialAuth.GoogleOptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,15 +32,37 @@ var builder = WebApplication.CreateBuilder(args);
 #region Services
 
 builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
-builder.Services.AddScoped<IPagingHelper, PagingHelper>();
+builder.Services.AddScoped<ISieveProcessor, AppSieveProcessor>();
 
-builder.Services.AddScoped<IJwtHandler, JwtHandler>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPagingHelper, PagingHelper>();
 builder.Services.AddScoped<IAuthContextProvider, AuthContextProvider>();
 builder.Services.AddScoped<ErrorHandlingMiddleWare>();
+builder.Services.AddTransient<IJwtHandler, JwtHandler>();
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IGroupUserService, GroupUserService>();
+builder.Services.AddScoped<ILinkService, LinkService>();
 
 builder.Services.AddAutoMapper(cfg => { cfg.AddProfile<DtoMappingProfile>(); });
-builder.Services.AddScoped<ISieveProcessor, AppSieveProcessor>();
+
+builder.Services.AddScoped<IBlobRepo, BlobRepo>();
+
+#endregion
+
+#region Email
+
+var mailOptions = builder.Configuration.GetSection("MailOptions").Get<MailOptions>();
+builder.Services.AddFluentEmail(mailOptions!.FromEmail, mailOptions.FromName)
+    .AddRazorRenderer()
+    .AddSmtpSender(new SmtpClient(mailOptions.Host)
+    {
+        Port = mailOptions.Port,
+        Credentials = new NetworkCredential(mailOptions.UserName, mailOptions.Password),
+        EnableSsl = true,
+    });
 
 #endregion
 
@@ -104,6 +130,8 @@ builder.Services.AddAuthorizationBuilder()
 
 #region Config
 
+builder.Services.Configure<FrontendOptions>(builder.Configuration.GetSection("FrontendOptions"));
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -142,10 +170,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(c =>
-    {
-        c.RouteTemplate = "api/swagger/{documentname}/swagger.json";
-    });
+    app.UseSwagger(c => { c.RouteTemplate = "api/swagger/{documentname}/swagger.json"; });
     app.UseSwaggerUI(c =>
     {
         c.EnablePersistAuthorization();

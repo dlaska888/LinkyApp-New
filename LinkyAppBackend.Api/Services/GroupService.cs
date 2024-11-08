@@ -21,7 +21,7 @@ public class GroupService(
     IPagingHelper pagingHelper,
     IMapper mapper,
     IAuthContextProvider auth
-) : IService<GetGroupDto, CreateGroupDto, UpdateGroupDto>
+) : IGroupService
 {
     public async Task<GetGroupDto> GetById(string id)
     {

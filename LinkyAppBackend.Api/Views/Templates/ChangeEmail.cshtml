@@ -1,0 +1,15 @@
+@model LinkyAppBackend.Api.Models.Templates.ChangeEmailModel
+
+<h1>Confirm Your New Email Address</h1>
+
+<p>Hello @Model.UserName,</p>
+
+<p>You requested to change your email address to @Model.NewEmail. Please confirm this change by clicking the link below:</p>
+
+<p>
+    <a href="@Model.Link" style="background-color:#4CAF50;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Confirm Email Change</a>
+</p>
+
+<p>If you didn’t request this change, please contact our support team immediately.</p>
+
+<p>Thanks,<br>Your Company Team</p>
