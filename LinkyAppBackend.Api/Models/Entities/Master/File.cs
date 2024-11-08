@@ -1,7 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
-using Sieve.Attributes;
 
 namespace LinkyAppBackend.Api.Models.Entities.Master;
 

@@ -71,11 +71,8 @@ public class GroupService(
     public async Task<bool> Delete(string id)
     {
         var group = await FindGroupAndVerifyAccess(id, GroupRole.Owner);
-
         dbContext.LinkGroups.Remove(group);
-        await dbContext.SaveChangesAsync();
-
-        return true;
+        return await dbContext.SaveChangesAsync() > 0;
     }
 
     private async Task<LinkGroup> FindGroupAndVerifyAccess(string groupId, GroupRole role = GroupRole.Viewer)

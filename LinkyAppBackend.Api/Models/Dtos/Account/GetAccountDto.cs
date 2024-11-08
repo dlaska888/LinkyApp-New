@@ -5,4 +5,5 @@ public class GetAccountDto : GetDto
     public string Username { get; set; } = null!;
     public string Email { get; set; } = null!;
     public bool EmailConfirmed { get; set; }
+    public string? ProfilePictureUrl { get; set; }
 }

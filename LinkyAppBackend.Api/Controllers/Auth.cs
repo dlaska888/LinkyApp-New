@@ -31,10 +31,4 @@ public class Auth(IAuthService authService) : ControllerBase
     {
         return Ok(await authService.Refresh(refreshToken));
     }
-
-    [HttpPost("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail([FromQuery] string userId, [FromQuery] string token)
-    {
-        return Ok(await authService.ConfirmEmail(userId, token));
-    }
 }

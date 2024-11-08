@@ -1,11 +1,21 @@
 using LinkyAppBackend.Api.Models.Dtos;
+using LinkyAppBackend.Api.Models.Dtos.Account;
 
 namespace LinkyAppBackend.Api.Services.Interfaces;
 
 public interface IAccountService
 {
-    Task<GetDto> GetAsync(string id);
-    Task UpdateEmailAsync(string id, string email);
-    Task UpdatePasswordAsync(string id, string password);
-    Task UploadProfilePictureAsync(string id, IFormFile file);
+    Task<GetAccountDto> GetAsync();
+
+    Task UpdateUsernameAsync(UpdateUsernameDto dto);
+    Task UpdatePasswordAsync(UpdatePasswordDto dto);
+    Task UploadProfilePictureAsync(IFormFile file);
+    Task DeleteProfilePictureAsync();
+
+    Task RequestEmailConfirmationAsync();
+    Task ConfirmEmailAsync(string token);
+    Task RequestEmailChangeAsync(RequestEmailChangeDto dto);
+    Task ConfirmEmailChangeAsync(ConfirmEmailChangeDto dto);
+    Task RequestPasswordResetAsync(RequestPasswordResetDto dto);
+    Task ResetPasswordAsync(ResetPasswordDto dto);
 }

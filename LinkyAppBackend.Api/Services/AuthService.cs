@@ -89,27 +89,6 @@ public class AuthService(
         return await GetTokens(user);
     }
 
-    public async Task<bool> ConfirmEmail(string userId, string token)
-    {
-        var user = await userManager.FindByIdAsync(userId);
-        if (user == null)
-        {
-            throw new BadRequestException("User not found");
-        }
-
-        var result = await userManager.ConfirmEmailAsync(user, token);
-
-        if (result.Errors.Any())
-            throw new BadRequestException(result.Errors.First().Description);
-
-        if (!result.Succeeded)
-        {
-            throw new BadRequestException("Failed to create user account.");
-        }
-
-        return result.Succeeded;
-    }
-
     #region Private Methods
 
     // //TODO refactor to use server name parameter and email template
