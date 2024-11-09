@@ -30,11 +30,11 @@ public class AccountService(
     public async Task<GetAccountDto> GetAsync()
     {
         var userId = auth.GetUserId();
-        var user = (await dbContext.Users
+        var user = (await dbContext.AppUsers
             .Include(u => u.ProfilePhoto)
             .FirstOrDefaultAsync(u => u.Id == userId))!;
 
-        var profilePictureUrl = user.ProfilePhoto != null
+        var profilePictureUrl = user.ProfilePhoto is not null
             ? await blobRepo.GetBlobDownloadPath(
                 user.ProfilePhoto.TrustedName,
                 azureBlobOptions.Value.Container,
@@ -85,7 +85,7 @@ public class AccountService(
     public async Task DeleteProfilePictureAsync()
     {
         var userId = auth.GetUserId();
-        var user = (await dbContext.Users
+        var user = (await dbContext.AppUsers
             .Include(u => u.ProfilePhoto)
             .FirstOrDefaultAsync(u => u.Id == userId))!;
 
@@ -93,6 +93,8 @@ public class AccountService(
             throw new BadRequestException("Profile picture not found");
 
         await blobRepo.DeleteBlob(user.ProfilePhoto.TrustedName, azureBlobOptions.Value.Container);
+        dbContext.Files.Remove(user.ProfilePhoto);
+        
         var result = await userManager.UpdateAsync(user);
         HandleIdentityErrors(result);
     }

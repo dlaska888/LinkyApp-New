@@ -1,6 +1,6 @@
 ﻿using LinkyAppBackend.Api.Models.Dtos.Account;
 
-namespace LinkyAppBackend.Api.Services;
+namespace LinkyAppBackend.Api.Services.Interfaces;
 
 public interface IAccountService
 {

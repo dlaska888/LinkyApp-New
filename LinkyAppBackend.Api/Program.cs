@@ -23,6 +23,7 @@ using LinkyAppBackend.Api.Services;
 using LinkyAppBackend.Api.Services.Interfaces;
 using LinkyAppBackend.Api.Sieve;
 using Sieve.Services;
+using TaggyAppBackend.Api.Models.Options;
 using TaggyAppBackend.Api.Repos;
 using TaggyAppBackend.Api.Repos.Interfaces;
 using GoogleOptions = LinkyAppBackend.Api.Models.Options.SocialAuth.GoogleOptions;
@@ -31,7 +32,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Services
 
-builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
+builder.Services.Configure<SieveOptions>(builder.Configuration.GetRequiredSection("Sieve"));
 builder.Services.AddScoped<ISieveProcessor, AppSieveProcessor>();
 
 builder.Services.AddScoped<IPagingHelper, PagingHelper>();
@@ -48,13 +49,14 @@ builder.Services.AddScoped<ILinkService, LinkService>();
 
 builder.Services.AddAutoMapper(cfg => { cfg.AddProfile<DtoMappingProfile>(); });
 
+builder.Services.Configure<AzureBlobOptions>(builder.Configuration.GetRequiredSection("Azure:AzureBlobOptions"));
 builder.Services.AddScoped<IBlobRepo, BlobRepo>();
 
 #endregion
 
 #region Email
 
-var mailOptions = builder.Configuration.GetSection("MailOptions").Get<MailOptions>();
+var mailOptions = builder.Configuration.GetRequiredSection("MailOptions").Get<MailOptions>();
 builder.Services.AddFluentEmail(mailOptions!.FromEmail, mailOptions.FromName)
     .AddRazorRenderer()
     .AddSmtpSender(new SmtpClient(mailOptions.Host)
@@ -99,11 +101,11 @@ builder.Services.Configure<IdentityOptions>(o =>
 
 #region JWT Authentication and Authorization
 
-var jwtOptionsSection = builder.Configuration.GetSection("JwtOptions");
+var jwtOptionsSection = builder.Configuration.GetRequiredSection("JwtOptions");
 var jwtOptions = jwtOptionsSection.Get<JwtOptions>();
 builder.Services.Configure<JwtOptions>(jwtOptionsSection);
 
-var googleOptionsSection = builder.Configuration.GetSection("SocialAuth:Google");
+var googleOptionsSection = builder.Configuration.GetRequiredSection("SocialAuth:Google");
 builder.Services.Configure<GoogleOptions>(googleOptionsSection);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -130,7 +132,7 @@ builder.Services.AddAuthorizationBuilder()
 
 #region Config
 
-builder.Services.Configure<FrontendOptions>(builder.Configuration.GetSection("FrontendOptions"));
+builder.Services.Configure<FrontendOptions>(builder.Configuration.GetRequiredSection("Frontend"));
 
 builder.Services.AddHttpContextAccessor();
 
