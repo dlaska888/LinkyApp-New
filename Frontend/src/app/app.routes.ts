@@ -1,3 +1,18 @@
 import { Routes } from '@angular/router';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { PathConstant } from './constants/path.constant';
+import { authGuardFn } from './guards/auth.guard';
+import { IndexComponent } from './components/index/index.component';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  { path: PathConstant.INDEX, component: IndexComponent, pathMatch: 'full' },
+  { path: PathConstant.LOGIN, component: LoginComponent },
+  { path: PathConstant.REGISTER, component: RegisterComponent },
+  {
+    path: PathConstant.DASHBOARD,
+    component: RegisterComponent,
+    canActivate: [authGuardFn],
+  },
+  { path: '**', redirectTo: PathConstant.INDEX },
+];
