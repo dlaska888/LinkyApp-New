@@ -1,5 +1,4 @@
-import { LinkyApiService } from '../../services/linkyApi.service';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, DestroyRef } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -16,20 +15,18 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { passwordMatchValidator } from '../../validators/passwordMatch.validator';
-import { passwordValidator } from '../../validators/password.validator';
-import { TransConstant } from '../../constants/trans.constant';
-import { AuthService } from '../../services/auth.service';
 import { HttpResponse } from '@angular/common/http';
-import { TokenDto } from '../../models/dtos/auth/tokenDto';
-import { PathConstant } from '../../constants/path.constant';
 import { Router, RouterModule } from '@angular/router';
 import { filter, finalize } from 'rxjs';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PathConstant } from '../../../core/constants/path.constant';
+import { AuthService } from '../../../core/services/auth.service';
+import { TokenDto } from '../models/tokenDto';
+import { LinkyApiService } from '../../../core/services/linkyApi.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-login',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -43,43 +40,34 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     RouterModule,
     ProgressSpinnerModule,
   ],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
 })
-export class RegisterComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   pathConst = PathConstant;
+
+  loginForm = new FormGroup({
+    userName: new FormControl(null, [
+      Validators.required,
+      Validators.maxLength(255),
+    ]),
+    password: new FormControl(null, [
+      Validators.required,
+      Validators.maxLength(255),
+    ]),
+  });
+
+  loginLoading: boolean = false;
+  googleLoading: boolean = false;
 
   constructor(
     private api: LinkyApiService,
     private socialAuth: SocialAuthService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private destroyRef: DestroyRef
   ) {}
 
-  registerForm = new FormGroup(
-    {
-      userName: new FormControl(null, [
-        Validators.required,
-        Validators.maxLength(255),
-      ]),
-      email: new FormControl(null, [
-        Validators.required,
-        Validators.maxLength(255),
-        Validators.email,
-      ]),
-      password: new FormControl(null, [
-        Validators.required,
-        passwordValidator(),
-      ]),
-      confirmPassword: new FormControl(null, [Validators.required]),
-    },
-    passwordMatchValidator('password', 'confirmPassword')
-  );
-
-  registerLoading: boolean = false;
-  googleLoading: boolean = false;
-
-  private destroyRef = inject(DestroyRef);
   ngOnInit() {
     this.tryNavigateToDashboard();
     this.socialAuth.authState
@@ -106,16 +94,18 @@ export class RegisterComponent {
       });
   }
 
+  ngOnDestroy() {
+    this.socialAuth.signOut();
+  }
+
   onSubmit() {
-    this.registerLoading = true;
+    this.loginLoading = true;
     this.api
-      .register({
-        userName: this.registerForm.value.userName!,
-        email: this.registerForm.value.email!,
-        password: this.registerForm.value.password!,
-        confirmPassword: this.registerForm.value.confirmPassword!,
+      .login({
+        userName: this.loginForm.value.userName!,
+        password: this.loginForm.value.password!,
       })
-      .pipe(finalize(() => (this.registerLoading = false)))
+      .pipe(finalize(() => (this.loginLoading = false)))
       .subscribe((response: HttpResponse<TokenDto>) => {
         if (!response.ok || !response.body) {
           console.error(response);
@@ -126,22 +116,7 @@ export class RegisterComponent {
       });
   }
 
-  getPasswordErrors() {
-    const control = this.registerForm.get('password');
-    return Object.keys(TransConstant.PASSWORD).map((key) => {
-      const transKey = key as keyof typeof TransConstant.PASSWORD;
-      return {
-        message: TransConstant.PASSWORD[transKey],
-        isSet: control?.hasError(TransConstant.PASSWORD[transKey]),
-      };
-    });
-  }
-
   private tryNavigateToDashboard() {
-    this.authService.tryAuthenticateUser().then((isAuthenticated) => {
-      if (isAuthenticated) {
-        this.router.navigate([PathConstant.DASHBOARD]);
-      }
-    });
+    this.router.navigate([PathConstant.DASHBOARD]);
   }
 }

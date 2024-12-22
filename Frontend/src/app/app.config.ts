@@ -4,7 +4,6 @@ import {
   isDevMode,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
@@ -14,17 +13,21 @@ import {
 import { environment } from '../environments/environment';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { authInterceptorFn } from './interceptors/auth.interceptor';
-import { errorMessageInterceptorFn } from './interceptors/error-message.interceptor';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
+import { authInterceptorFn } from './core/interceptors/auth.interceptor';
+import { errorMessageInterceptorFn } from './core/interceptors/error-message.interceptor';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import Aura from '@primeng/themes/aura';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     MessageService,
     ConfirmationService,
     RxFormBuilder,
-    provideHttpClient(withInterceptors([authInterceptorFn, errorMessageInterceptorFn])),
+    provideHttpClient(
+      withInterceptors([authInterceptorFn, errorMessageInterceptorFn])
+    ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimations(),
@@ -32,6 +35,7 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    provideAnimationsAsync(),
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {

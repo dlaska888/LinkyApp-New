@@ -6,16 +6,15 @@ import {
   HttpParams,
   HttpResponse,
 } from '@angular/common/http';
-import { LinkyApiConstant } from '../constants/linkyApi.constant';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { LoginDto } from '../models/dtos/auth/loginDto';
-import { RegisterDto } from '../models/dtos/auth/registerDto';
-import { ExternalAuthDto } from '../models/dtos/auth/externalAuthDto';
-import { TokenDto } from '../models/dtos/auth/tokenDto';
-import { GetAccountDto } from '../models/dtos/account/getAccountDto';
+import { LoginDto } from '../../features/auth/login/models/loginDto';
+import { RegisterDto } from '../../features/auth/register/models/registerDto';
+import { ExternalAuthDto } from '../../features/auth/models/externalAuthDto';
+import { TokenDto } from '../../features/auth/models/tokenDto';
 import { ApiTokenConstant } from '../constants/apiToken.constant';
-import { PagedResults } from '../models/dtos/pagedResults';
+import { LinkyApiConstant } from '../constants/linkyApi.constant';
+import { GetAccountDto } from '../models/dtos/account/getAccountDto';
 import { SieveModelDto } from '../models/dtos/sieveModelDto';
 // import { GetFileDto } from '../models/dtos/file/getFileDto';
 // import { GetGroupDto } from '../models/dtos/group/getGroupDto';

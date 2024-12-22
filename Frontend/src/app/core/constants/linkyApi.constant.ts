@@ -1,4 +1,4 @@
-import { environment } from "../../environments/environment";
+import { environment } from "../../../environments/environment";
 
 export class LinkyApiConstant {
     public static readonly LOGIN = environment.linkyApi.url + '/auth/login';

@@ -1,11 +1,11 @@
 import { LinkyApiService } from './linkyApi.service';
 import { Injectable } from '@angular/core';
-import { LocalStorageConstant } from '../constants/localStorage.constant';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { TokenDto } from '../models/dtos/auth/tokenDto';
-import { ApiTokenConstant } from '../constants/apiToken.constant';
+import { TokenDto } from '../../features/auth/models/tokenDto';
 import { BehaviorSubject, filter, finalize, firstValueFrom, take } from 'rxjs';
 import { Router } from '@angular/router';
+import { ApiTokenConstant } from '../constants/apiToken.constant';
+import { LocalStorageConstant } from '../constants/localStorage.constant';
 import { PathConstant } from '../constants/path.constant';
 
 @Injectable({

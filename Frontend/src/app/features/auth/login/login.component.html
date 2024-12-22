@@ -3,7 +3,7 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
          <fieldset class="flex flex-column gap-3 border-none" [disabled]="loginLoading || googleLoading">
             <div class="flex flex-column gap-5">
-               <h1 class="mt-0">Login</h1>
+               <h1 class="m-0 text-center">Welcome back</h1>
                <p-floatLabel>
                   <input type="text" pInputText title="userName" formControlName="userName" />
                   <label for="userName">Username</label>
@@ -15,14 +15,16 @@
                   <input type="password" pInputText title="password" formControlName="password" />
                   <label for="password">Password</label>
                </p-floatLabel>
-               <div class="flex flex-column">
-                  <button title="submit" pButton type="submit" label="Submit" [disabled]="loginForm.invalid" [loading]="loginLoading"></button>
+               <div class="flex flex-column ">
+                  <button title="submit" pButton type="submit" label="Submit" [disabled]="loginForm.invalid"
+                     [loading]="loginLoading"></button>
                   <p>Don't have an account? <a [routerLink]="[ '/' + pathConst.REGISTER]">Register</a></p>
                </div>
             </div>
-            <div class="flex">
+            <div class="flex justify-content-center">
                <asl-google-signin-button type='standard'></asl-google-signin-button>
-               <p-progressSpinner *ngIf="googleLoading" class="ml-3" [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
+               <p-progressSpinner *ngIf="googleLoading" class="ml-3"
+                  [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
             </div>
          </fieldset>
       </form>
