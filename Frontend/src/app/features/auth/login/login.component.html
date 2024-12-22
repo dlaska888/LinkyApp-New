@@ -18,7 +18,7 @@
                <div class="flex flex-column ">
                   <button title="submit" pButton type="submit" label="Submit" [disabled]="loginForm.invalid"
                      [loading]="loginLoading"></button>
-                  <p>Don't have an account? <a [routerLink]="[ '/' + pathConst.REGISTER]">Register</a></p>
+                  <p>Don't have an account? <a [routerLink]="'/' + pathConst.REGISTER">Register</a></p>
                </div>
             </div>
             <div class="flex justify-content-center">

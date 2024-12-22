@@ -22,6 +22,7 @@
     "@angular/service-worker": "^18.2.0",
     "@primeng/themes": "^19.0.1",
     "@rxweb/reactive-form-validators": "^13.0.1",
+    "angular-tabler-icons": "^3.26.0",
     "jwt-decode": "^4.0.0",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
@@ -41,6 +42,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
     "typescript": "~5.5.2"
   }
 }
