@@ -6,6 +6,7 @@ using LinkyAppBackend.Api.Models.Entities.Master;
 using LinkyAppBackend.Api.Models.Options;
 using LinkyAppBackend.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace LinkyAppBackend.Api.Services;
@@ -14,6 +15,7 @@ public class AuthService(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     IJwtHandler jwtHandler,
+    AppDbContext dbContext,
     IOptions<JwtOptions> jwtSettings)
     : IAuthService
 {
@@ -73,18 +75,18 @@ public class AuthService(
 
     public async Task<TokenDto> Refresh(string refreshToken)
     {
-        var user = userManager.Users.SingleOrDefault(u =>
-            u.RefreshToken == refreshToken && u.RefreshTokenExp > DateTime.UtcNow);
+        var token = dbContext.RefreshTokens
+            .Include(t => t.User).SingleOrDefault(t => t.Token == refreshToken);
 
-        if (user == null)
-        {
+        if (token == null)
             throw new UnauthorizedException("Invalid refresh token");
-        }
 
-        if (user.RefreshTokenExp < DateTime.UtcNow)
-        {
+        if (token.Expiration < DateTime.UtcNow)
             throw new UnauthorizedException("Refresh token expired");
-        }
+
+        var user = token.User;
+        user.RefreshTokens.Remove(token);
+        await userManager.UpdateAsync(user);
 
         return await GetTokens(user);
     }
@@ -125,8 +127,14 @@ public class AuthService(
         var token = jwtHandler.GenerateJwtToken(user);
         var refreshToken = jwtHandler.GenerateRefreshToken();
 
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExp = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtOptions.RefreshExpirationTime));
+        var dbToken = new RefreshToken
+        {
+            Token = refreshToken,
+            Expiration = DateTime.UtcNow.AddMinutes(_jwtOptions.RefreshExpirationTime),
+            User = user
+        };
+
+        user.RefreshTokens.Add(dbToken);
         await userManager.UpdateAsync(user);
 
         return new TokenDto { AccessToken = token, RefreshToken = refreshToken };

@@ -3,7 +3,7 @@ using LinkyAppBackend.Api.Models.Enums;
 
 namespace LinkyAppBackend.Api.Models.Entities;
 
-public class AssocEntity : IAuditableEntity
+public class AuditableEntity : IAuditableEntity
 {
     public EntityStatus EntityStatus { get; set; }
     public DateTime CreatedAt { get; set; }

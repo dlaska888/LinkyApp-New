@@ -7,7 +7,7 @@ using Sieve.Attributes;
 namespace LinkyAppBackend.Api.Models.Entities.Assoc;
 
 [PrimaryKey(nameof(UserId), nameof(GroupId))]
-public class LinkGroupUser : AssocEntity
+public class LinkGroupUser : AuditableEntity
 {
     [Sieve(CanFilter = true, CanSort = true)]
     public GroupRole Role { get; set; }
