@@ -2,13 +2,12 @@ import {
   HttpErrorResponse,
   HttpEvent,
   HttpHandlerFn,
-  HttpRequest,
-  HttpResponse,
+  HttpRequest
 } from '@angular/common/http';
-import { catchError, Observable, tap, throwError } from 'rxjs';
 import { inject } from '@angular/core';
+import { UIConfigConstant } from 'app/core/constants/UIConfig.constant';
 import { MessageService } from 'primeng/api';
-import { UIConfigConstant } from '../constants/UIConfig.constant';
+import { catchError, Observable, throwError } from 'rxjs';
 
 export function errorMessageInterceptorFn(
   req: HttpRequest<unknown>,

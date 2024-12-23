@@ -1,21 +1,17 @@
 import {
   HttpClient,
   HttpContext,
-  HttpEvent,
-  HttpHeaders,
-  HttpParams,
-  HttpResponse,
+  HttpResponse
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { LoginDto } from '../../features/auth/login/models/loginDto';
-import { RegisterDto } from '../../features/auth/register/models/registerDto';
 import { ExternalAuthDto } from '../../features/auth/models/externalAuthDto';
 import { TokenDto } from '../../features/auth/models/tokenDto';
+import { RegisterDto } from '../../features/auth/register/models/registerDto';
 import { ApiTokenConstant } from '../constants/apiToken.constant';
 import { LinkyApiConstant } from '../constants/linkyApi.constant';
-import { GetAccountDto } from '../models/dtos/account/getAccountDto';
-import { SieveModelDto } from '../models/dtos/sieveModelDto';
+import { GetAccountDto } from '../models/dtos/account/getAccount.dto';
 // import { GetFileDto } from '../models/dtos/file/getFileDto';
 // import { GetGroupDto } from '../models/dtos/group/getGroupDto';
 // import { UpdateFileDto } from '../models/dtos/file/updateFileDto';
@@ -80,17 +76,5 @@ export class LinkyApiService {
     return this.http.get<GetAccountDto>(LinkyApiConstant.ACCOUNT, {
       observe: 'response',
     });
-  }
-
-  private getQueryParams(query: SieveModelDto): HttpParams {
-    let params = new HttpParams();
-
-    Object.entries(query).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        params = params.set(key, value.toString());
-      }
-    });
-
-    return params;
   }
 }

@@ -14,13 +14,11 @@ export class SidebarItemComponent {
   @Input() routerLink!: string;
   @Input() icon!: string;
   @Input() label!: string;
-  @Input() pathConst!: string;
 
   constructor(private router: Router) {}
 
   isActive(path: string): boolean {
-    const currentPath = this.router.url.split('/')[2];
-    console.log(currentPath);
+    const currentPath = this.router.url.split('/').pop();
     return currentPath === path;
   }
 }

@@ -1,7 +1,7 @@
 <div class="flex flex-column justify-content-center align-items-center h-screen">
    <p-card styleClass="login-form" class="flex justify-content-center">
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
-         <fieldset class="flex flex-column gap-3 border-none" [disabled]="loginLoading || googleLoading">
+         <fieldset class="flex flex-column gap-3 border-none" [disabled]="loginLoading">
             <div class="flex flex-column gap-5">
                <h1 class="m-0 text-center">Welcome back</h1>
                <p-floatLabel>
@@ -21,11 +21,7 @@
                   <p>Don't have an account? <a [routerLink]="'/' + pathConst.REGISTER">Register</a></p>
                </div>
             </div>
-            <div class="flex justify-content-center">
-               <asl-google-signin-button type='standard'></asl-google-signin-button>
-               <p-progressSpinner *ngIf="googleLoading" class="ml-3"
-                  [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
-            </div>
+            <app-google-login (googleLoadinChange)="loginLoading=$event"></app-google-login>
          </fieldset>
       </form>
    </p-card>

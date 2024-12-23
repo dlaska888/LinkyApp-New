@@ -1,4 +1,4 @@
-export interface GetDtoInterface {
+export interface GetDto {
   id: string;
   createdAt: Date;
 }

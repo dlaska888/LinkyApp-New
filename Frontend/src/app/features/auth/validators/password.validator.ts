@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { TransConstant } from '../constants/trans.constant';
+import { TransConstant } from 'app/core/constants/trans.constant';
 
 export function passwordValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {

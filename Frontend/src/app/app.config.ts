@@ -1,24 +1,23 @@
 import {
-  ApplicationConfig,
-  provideZoneChangeDetection,
-  isDevMode,
-} from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
-import { provideServiceWorker } from '@angular/service-worker';
-import {
   GoogleLoginProvider,
   SocialAuthServiceConfig,
 } from '@abacritt/angularx-social-login';
-import { environment } from '../environments/environment';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  ApplicationConfig,
+  isDevMode,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { RxFormBuilder } from '@rxweb/reactive-form-validators';
-import { authInterceptorFn } from './core/interceptors/auth.interceptor';
-import { errorMessageInterceptorFn } from './core/interceptors/error-message.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import Aura from '@primeng/themes/aura';
+import { provideRouter } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
+import { RxFormBuilder } from '@rxweb/reactive-form-validators';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { environment } from '../environments/environment';
+import { routes } from './app.routes';
+import { authInterceptorFn } from './core/lib/linky-backend/interceptors/auth.interceptor';
+import { errorMessageInterceptorFn } from './core/lib/linky-backend/interceptors/error-message.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     ConfirmationService,
     RxFormBuilder,
     provideHttpClient(
-      withInterceptors([authInterceptorFn, errorMessageInterceptorFn])
+      withInterceptors([authInterceptorFn, errorMessageInterceptorFn]),
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),

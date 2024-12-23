@@ -1,6 +1,6 @@
-import { GetDtoInterface } from "./getDtoInterface";
+import { GetDto } from "./get.dto";
 
-export interface PagedResults<T extends GetDtoInterface> {
+export interface PagedResults<T extends GetDto> {
     items: T[];
     pageNum: number;
     pageSize: number;

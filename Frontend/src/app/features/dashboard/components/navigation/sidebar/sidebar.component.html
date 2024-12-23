@@ -1,17 +1,7 @@
 <aside class="flex flex-column bg-primary w-fit h-full gap-3 p-2 py-3">
-   <app-sidebar-item [routerLink]="PathConst.MY_LINKS" [icon]="'ti ti-home'" [pathConst]="PathConst.MY_LINKS">
-   </app-sidebar-item>
-
-   <app-sidebar-item [routerLink]="PathConst.SHARED" [icon]="'ti ti-share'" [pathConst]="PathConst.SHARED">
-   </app-sidebar-item>
-
-   <app-sidebar-item [routerLink]="PathConst.RECOMMENDATIONS" [icon]="'ti ti-world-www'"
-      [pathConst]="PathConst.RECOMMENDATIONS">
-   </app-sidebar-item>
-
-   <app-sidebar-item [routerLink]="PathConst.SETTINGS" [icon]="'ti ti-settings'" [pathConst]="PathConst.SETTINGS">
-   </app-sidebar-item>
-
-   <app-sidebar-item [routerLink]="'/' + PathConst.LOGIN" [icon]="'ti ti-logout-2'" [pathConst]="PathConst.LOGIN">
-   </app-sidebar-item>
+   <app-sidebar-item [routerLink]="PathConst.MY_LINKS" [icon]="'ti ti-home'" />
+   <app-sidebar-item [routerLink]="PathConst.SHARED" [icon]="'ti ti-share'" />
+   <app-sidebar-item [routerLink]="PathConst.RECOMMENDATIONS" [icon]="'ti ti-world-www'" />
+   <app-sidebar-item [routerLink]="PathConst.SETTINGS" [icon]="'ti ti-settings'" />
+   <app-sidebar-item (click)="logout()" [icon]="'ti ti-logout-2'" />
 </aside>

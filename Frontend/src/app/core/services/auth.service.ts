@@ -1,12 +1,14 @@
-import { LinkyApiService } from './linkyApi.service';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { TokenDto } from '../../features/auth/models/tokenDto';
-import { BehaviorSubject, filter, finalize, firstValueFrom, take } from 'rxjs';
 import { Router } from '@angular/router';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { BehaviorSubject, filter, finalize, firstValueFrom, take } from 'rxjs';
+import { TokenDto } from '../../features/auth/models/tokenDto';
 import { ApiTokenConstant } from '../constants/apiToken.constant';
+import { LinkyApiConstant } from '../constants/linkyApi.constant';
 import { LocalStorageConstant } from '../constants/localStorage.constant';
 import { PathConstant } from '../constants/path.constant';
+import { setPublicApi } from '../utils/setPublicApi';
 
 @Injectable({
   providedIn: 'root',
@@ -15,8 +17,8 @@ export class AuthService {
   private tokenRefreshingSubject = new BehaviorSubject<boolean>(false);
 
   constructor(
-    private taggyAppApiService: LinkyApiService,
-    private router: Router
+    private http: HttpClient,
+    private router: Router,
   ) {}
 
   getTokens(): TokenDto {
@@ -32,7 +34,7 @@ export class AuthService {
     localStorage.setItem(LocalStorageConstant.ACCESS_TOKEN, tokens.accessToken);
     localStorage.setItem(
       LocalStorageConstant.REFRESH_TOKEN,
-      tokens.refreshToken
+      tokens.refreshToken,
     );
   }
 
@@ -54,17 +56,14 @@ export class AuthService {
     const { refreshToken } = this.getTokens();
 
     return new Promise((resolve, reject) => {
-      this.taggyAppApiService
-        .refreshToken(refreshToken)
+      this.http
+        .post<TokenDto>(LinkyApiConstant.REFRESH_TOKEN, refreshToken, {
+          context: setPublicApi(),
+        })
         .pipe(finalize(() => this.tokenRefreshingSubject.next(false)))
         .subscribe({
-          next: (response) => {
-            if (!response.ok || !response.body) {
-              console.error(response);
-              this.redirectToLogin();
-              return reject(response);
-            }
-            this.setTokens(response.body);
+          next: (body) => {
+            this.setTokens(body);
             console.log('Tokens refreshed');
             return resolve();
           },
@@ -75,6 +74,11 @@ export class AuthService {
           },
         });
     });
+  }
+
+  logout(): void {
+    localStorage.clear();
+    this.redirectToLogin();
   }
 
   private redirectToLogin(): void {
@@ -97,15 +101,13 @@ export class AuthService {
   }
 
   private async isTokenRefreshing(): Promise<boolean> {
-    if (this.tokenRefreshingSubject.getValue()) {
-      await firstValueFrom(
-        this.tokenRefreshingSubject.asObservable().pipe(
-          filter((refreshing) => refreshing === false),
-          take(1)
-        )
-      );
-      return true;
-    }
-    return false;
+    if (!this.tokenRefreshingSubject.getValue()) return false;
+    await firstValueFrom(
+      this.tokenRefreshingSubject.asObservable().pipe(
+        filter((refreshing) => refreshing === false),
+        take(1),
+      ),
+    );
+    return true;
   }
 }

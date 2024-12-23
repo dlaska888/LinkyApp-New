@@ -1,12 +1,12 @@
 import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
-import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { ApiTokenConstant } from '../constants/apiToken.constant';
+import { ApiTokenConstant } from 'app/core/constants/apiToken.constant';
+import { AuthService } from 'app/core/services/auth.service';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 
 export function authInterceptorFn(
   req: HttpRequest<unknown>,
-  next: HttpHandlerFn
+  next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> {
   const authService = inject(AuthService);
   const reqWithToken = () => {
@@ -14,7 +14,7 @@ export function authInterceptorFn(
     return req.clone({
       headers: req.headers.set('Authorization', `Bearer ${accessToken}`),
     });
-  }
+  };
 
   if (req.context.get(ApiTokenConstant.IS_PUBLIC_API)) {
     return next(req);
@@ -28,11 +28,10 @@ export function authInterceptorFn(
           return from(authService.refreshToken()).pipe(
             switchMap(() => {
               return next(reqWithToken());
-            })
+            }),
           );
-        })
+        }),
       );
-    })
+    }),
   );
-  
 }
