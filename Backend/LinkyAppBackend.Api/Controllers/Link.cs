@@ -9,7 +9,7 @@ namespace LinkyAppBackend.Api.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/{groupId}/[controller]")]
+[Route("api/group/{groupId}/[controller]")]
 public class Link(ILinkService service) : ControllerBase
 {
     [HttpGet]

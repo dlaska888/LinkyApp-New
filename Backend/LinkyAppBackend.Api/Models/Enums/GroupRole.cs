@@ -2,8 +2,8 @@
 
 public enum GroupRole
 {
-    Owner, // Can manage group settings 
-    ContentManager, // Can manage all links
+    Viewer, // Can view links
     Editor, // Can manage own links
-    Viewer // Can view links
+    ContentManager, // Can manage all links
+    Owner // Can manage group settings 
 }

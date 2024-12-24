@@ -9,7 +9,7 @@ namespace LinkyAppBackend.Api.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/{groupId}/group-user")]
+[Route("api/group/{groupId}/group-user")]
 public class GroupUser(IGroupUserService service) : ControllerBase
 {
     [HttpGet]
