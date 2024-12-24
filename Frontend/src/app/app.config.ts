@@ -18,6 +18,7 @@ import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { authInterceptorFn } from './core/lib/linky-backend/interceptors/auth.interceptor';
 import { errorMessageInterceptorFn } from './core/lib/linky-backend/interceptors/error-message.interceptor';
+import { jsonContentTypeInterceptorFn } from './core/lib/linky-backend/interceptors/json-content-type.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,7 +26,11 @@ export const appConfig: ApplicationConfig = {
     ConfirmationService,
     RxFormBuilder,
     provideHttpClient(
-      withInterceptors([authInterceptorFn, errorMessageInterceptorFn]),
+      withInterceptors([
+        jsonContentTypeInterceptorFn,
+        authInterceptorFn,
+        errorMessageInterceptorFn,
+      ]),
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),

@@ -57,9 +57,13 @@ export class AuthService {
 
     return new Promise((resolve, reject) => {
       this.http
-        .post<TokenDto>(LinkyApiConstant.REFRESH_TOKEN, refreshToken, {
-          context: setPublicApi(),
-        })
+        .post<TokenDto>(
+          LinkyApiConstant.REFRESH_TOKEN,
+          JSON.stringify(refreshToken),
+          {
+            context: setPublicApi(),
+          },
+        )
         .pipe(finalize(() => this.tokenRefreshingSubject.next(false)))
         .subscribe({
           next: (body) => {

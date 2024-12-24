@@ -1,1 +1,15 @@
-<p>link works!</p>
+<div class="link-container flex">
+  <div class="link-info flex flex-center">
+    <img
+      [src]="'https://www.google.com/s2/favicons?domain=' + link.url + '&sz=64'"
+      width="32"
+      height="32"
+      alt="Icon"
+    />
+    <div class="link-text flex-column">
+      <p class="link-title text-ellipsis">{{ link.title }}</p>
+      <p class="link-url text-ellipsis">${{ link.url }}</p>
+    </div>
+  </div>
+  <div class="link-buttons flex"></div>
+</div>

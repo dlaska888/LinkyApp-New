@@ -1,0 +1,27 @@
+<form [formGroup]="createGroupForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="name">Group Name</label>
+    <input id="name" formControlName="name" placeholder="Enter group name" />
+    <div
+      *ngIf="
+        createGroupForm.get('name')?.invalid &&
+        createGroupForm.get('name')?.touched
+      "
+    >
+      <small class="error">Group name is required.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="description">Description</label>
+    <textarea
+      id="description"
+      formControlName="description"
+      placeholder="Enter group description (optional)"
+    ></textarea>
+  </div>
+
+  <button type="submit" [disabled]="createGroupForm.invalid">
+    Create Group
+  </button>
+</form>

@@ -1,7 +1,13 @@
 <aside class="flex flex-column bg-primary w-fit h-full gap-3 p-2 py-3">
-   <app-sidebar-item [routerLink]="PathConst.MY_LINKS" [icon]="'ti ti-home'" />
-   <app-sidebar-item [routerLink]="PathConst.SHARED" [icon]="'ti ti-share'" />
-   <app-sidebar-item [routerLink]="PathConst.RECOMMENDATIONS" [icon]="'ti ti-world-www'" />
-   <app-sidebar-item [routerLink]="PathConst.SETTINGS" [icon]="'ti ti-settings'" />
-   <app-sidebar-item (click)="logout()" [icon]="'ti ti-logout-2'" />
+  <app-sidebar-item [routerLink]="PathConst.MY_LINKS" [icon]="'pi pi-home'" />
+  <app-sidebar-item
+    [routerLink]="PathConst.SHARED"
+    [icon]="'pi pi-share-alt'"
+  />
+  <app-sidebar-item
+    [routerLink]="PathConst.RECOMMENDATIONS"
+    [icon]="'pi pi-microchip-ai'"
+  />
+  <app-sidebar-item [routerLink]="PathConst.SETTINGS" [icon]="'pi pi-cog'" />
+  <app-sidebar-item (click)="logout()" [icon]="'pi pi-sign-out'" />
 </aside>
